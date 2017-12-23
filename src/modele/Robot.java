@@ -22,6 +22,8 @@ public class Robot {
 	private int taille;
 	/**position de l'intrus*/
 	private static Cellule posIntrus ;
+	/** champ de perception d'un robot */
+	private int champPerception;
 
 
 	/**objet necessaire pour le tirage aleatoire de la prochaine direction*/
@@ -104,11 +106,11 @@ public class Robot {
 		Cellule posIntrus = null;
 		Cellule[][]grille = terrain.getGrille();
 		int i,j=0;
-		for( i=-3; i<=3; i++)
+		for( i=-champPerception; i<=champPerception; i++)
 		{
 			int xi = point.x+i;
 			if(xi<0 || xi>=taille) continue;
-			for( j=-3; j<=3; j++)
+			for( j=-champPerception; j<=champPerception; j++)
 			{
 				int yi = point.y+j;
 				if(yi<0 || yi>=taille) continue;
@@ -121,8 +123,9 @@ public class Robot {
 		}
 		if(posIntrus!=null && posIntrus.getX()==point.getX() && posIntrus.getY()==point.getY() )
 		{
+			terrain.changerEtatIntrus(EtatIntrus.PERDU);
 			System.out.println("PERDU !!!");
-			AppliLaby.littleCycle.stop();
+			//AppliLaby.littleCycle.stop();
 		}
 		return posIntrus;
 	}
@@ -157,10 +160,6 @@ public class Robot {
 		return liste;		
 	}
 
-
-
-
-
 	/**fait avancer le robot dans sa direction si la case devant existe et est non occupee*/
 	private void bougerVersDirection()
 	{
@@ -179,9 +178,9 @@ public class Robot {
 			{
 				if(cell.isIntrus())
 				{
+					terrain.changerEtatIntrus(EtatIntrus.PERDU);
 					System.out.println("PERDU !!!");
-					
-					AppliLaby.littleCycle.stop();					
+					//AppliLaby.littleCycle.stop();					
 				}
 				else posIntrus=null;
 			}
@@ -227,6 +226,11 @@ public class Robot {
 
 	public Point getPoint() {
 		return point;
+	}
+	
+	public void setChampPerception(int _champPerception) {
+		
+		champPerception = _champPerception;
 	}
 
 }

@@ -12,9 +12,9 @@ public class Terrain {
 	/** taille de la grille*/
 	private int taille;
 	/** nombre de robots */
-	private int nbRobots = 1;
+	private int nbRobots;
 	/**taux d'obstacle*/
-	private double tauxObstacles = 0.2;
+	private double tauxObstacles;
 	/**tableau des robots*/
 	private Robot[] lesRobots;
 	/**l'Intrus*/
@@ -34,22 +34,57 @@ public class Terrain {
 	 * @param taille taille d'un côté du terrain
 	 * @param _nbRobots nb de robots à créer
 	 */
-	public Terrain(int taille, int _nbRobots)
+	public Terrain(int taille, int _nbRobots, double _tauxObstacles)
 	{
 		this.taille= taille;
+		this.tauxObstacles = _tauxObstacles;
 		grille = new Cellule[taille][taille];
 		this.nbRobots = _nbRobots ;
 		init();
+		initTresor();
+		initSortie();
 		initObstacle(tauxObstacles);
 		initRobots(nbRobots);
 		initIntrus();
-		initTresor();
+	}
+	
+	/**
+	 * Constructeur utile pour charger le terrain depuis une sauvegarde
+	 * @param _taille Taille du terrain
+	 * @param _nbRobots Nombre de robots
+	 * @param _tauxObstacles Taux d'obstacles
+	 * @param _x Position en x de l'intrus
+	 * @param _y Position en y de l'intrus
+	 * @param etat Etat de l'intrus
+	 * @param pointTresor Position du tresor
+	 */
+	public Terrain(int _taille, int _nbRobots, double _tauxObstacles, int _x, int _y, EtatIntrus etat, Point pointTresor) {
+		
+		taille = _taille;
+		tauxObstacles = _tauxObstacles;
+		grille = new Cellule[taille][taille];
+		nbRobots = _nbRobots;
+		init();
+		initTresor(pointTresor);
+		initSortie();
+		initObstacle(tauxObstacles);
+		initRobots(nbRobots);
+		initIntrus(_x, _y, etat);
 	}
 
 
 	/** 
-	 * initialise de la grille
+	 * initialise les sorties du terrain
 	 */
+	private void initSortie() {
+		
+		grille[0][taille/2].setSortie(true);
+		grille[taille/2][0].setSortie(true);
+		grille[taille-1][taille/2].setSortie(true);
+		grille[taille/2][taille-1].setSortie(true);
+	}
+	
+	
 	private void init()
 	{
 		for(int i=0; i<taille; i++)
@@ -63,8 +98,9 @@ public class Terrain {
 	{
 		Random r = new Random();
 		for(int i=0; i<taille; i++)
-			for(int j=0; j<taille; j++)
-				if(r.nextDouble()<tauxObstacles) grille[i][j].setObstacle(true);
+			for(int j=0; j<taille; j++) 
+				if(r.nextDouble()<tauxObstacles && !grille[i][j].isSortie() && !grille[i][j].isTresor()) 
+					grille[i][j].setObstacle(true);
 	}
 
 	
@@ -77,11 +113,22 @@ public class Terrain {
 		 grille[pointTresor.x][pointTresor.y].setTresor(true);
 	}
 	
+	private void initTresor(Point _pointTresor) {
+		
+		pointTresor = _pointTresor;
+		grille[pointTresor.x][pointTresor.y].setTresor(true);
+	}
+	
 	/**cree l'intrus */
 	private void initIntrus()
 	{
 		Random r = new Random();
 		intrus = new Intrus(r.nextInt(taille), taille-10, this);
+	}
+	
+	private void initIntrus(int x, int y, EtatIntrus etat) {
+		
+		intrus = new Intrus(x, y, this, etat);
 	}
 	
 	
@@ -92,6 +139,11 @@ public class Terrain {
 		Random r = new Random();
 		lesRobots = new Robot[nb];
 		Arrays.setAll(lesRobots, i->new Robot(r.nextInt(taille), r.nextInt(taille), this));
+	}
+	
+	public void changerEtatIntrus(EtatIntrus etat) {
+		
+		intrus.setEtat(etat);
 	}
 
 	/**  
@@ -140,5 +192,15 @@ public class Terrain {
 
 	public void setIntrus(Intrus intrus) {
 		this.intrus = intrus;
+	}
+	
+	public double getTauxObstacles() {
+		
+		return tauxObstacles;
+	}
+	
+	public Point getTresor() {
+		
+		return pointTresor;
 	}
 }

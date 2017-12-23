@@ -19,8 +19,11 @@ public class Cellule
 	private boolean obstacle;
 	/**defini si la cellule contient le tresor ou non*/
 	private boolean tresor;
-	// défini une opacité
-	private double opacity;
+	// opacitÃ© d'une cellule
+	private double opacite = 1;
+	// defini si la cellule est une sortie
+	private boolean sortie;
+
 
 	/** reference a la grille des cellule*/
 	static Cellule [][]grille;
@@ -38,10 +41,6 @@ public class Cellule
 		this.x = x; this.y = y;
 		hasJustChanged = true;
 	}
-
-
-	
-
 
 	/**
 	 * @return the hasJustChanged
@@ -115,8 +114,8 @@ public class Cellule
 		return visitee;
 	}
 
-	public void setVisitee(boolean _visitee) {
-		visitee = _visitee;
+	public void setVisitee(boolean visitee) {
+		this.visitee = visitee;
 	}
 
 	public boolean isTresor() {
@@ -127,13 +126,24 @@ public class Cellule
 		this.tresor = tresor;
 	}
 	
-	public void setOpacity(boolean _opacity) {
-		if (_opacity) {
-			this.opacity = 1.0;
-			this.visitee = true;
-		} else if (opacity>0){
-			this.opacity = this.opacity - 1.0;
-		} else
-			this.visitee = false;
+	public void setOpacite(double _opacite) {
+		
+		opacite = _opacite;
 	}
+	
+	public double getOpacite() {
+		
+		return opacite;
+	}
+	
+	public void setSortie(boolean _sortie) {
+		
+		sortie = _sortie;
+	}
+	
+	public boolean isSortie() {
+		
+		return sortie;
+	}
+
 }

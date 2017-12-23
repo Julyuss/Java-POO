@@ -1,8 +1,11 @@
 package modele;
 
 import java.awt.Point;
+
+
 import application.AppliLaby;
 import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
 
 /**classe representant un robot evoluant a la recherche de nourriture a l'aide de pheromones*/
 public class Intrus {
@@ -17,7 +20,8 @@ public class Intrus {
 	private Terrain terrain;
 	/**taille du terrain*/
 	private int taille;
-	
+	/**champ de perception */
+	private int champPerception;
 
 
 	/**objet graphique associe a le robot*/
@@ -37,6 +41,14 @@ public class Intrus {
 		taille = terrain.getTaille();
 		etat = EtatIntrus.RECHERCHE;
 	}
+	
+	public Intrus(int _x, int _y, Terrain _terrain, EtatIntrus _etat) {
+		
+		point = new Point(_x, _y);
+		terrain=_terrain;
+		taille = terrain.getTaille();
+		etat = _etat;
+	}
 
 
 
@@ -44,7 +56,7 @@ public class Intrus {
 	public void bougerVersDirection()
 	{
 		Cellule cell = getNextCellule(direction);
-		if(cell!=null && !cell.isRobot() && !cell.isObstacle()) 
+		if(cell!=null && !cell.isRobot() && !cell.isObstacle() && etat != EtatIntrus.GAGNE && etat != EtatIntrus.PERDU) 
 		{
 			Cellule[][] grille = terrain.getGrille();
 			grille[point.x][point.y].setIntrus(false);
@@ -54,24 +66,28 @@ public class Intrus {
 			AppliLaby.moveIntrus(this, point);
 			
 			cell.setIntrus(true);
-			if(cell.isTresor())  etat = EtatIntrus.RETOUR;
-
-			for(int k = 0; k < this.terrain.getTaille(); k++) {
-				for(int l = 0; l < this.terrain.getTaille(); l++) {
-					grille[k][l].setVisitee(false);
-				}
+			
+			if(cell.isTresor())  
+				etat = EtatIntrus.RETOUR;
+			
+			if(cell.isSortie() && etat == EtatIntrus.RETOUR) {
+				etat = EtatIntrus.GAGNE;
+				getDessin().setFill(Color.TRANSPARENT);
+				System.out.println("GAGNE !!!");
 			}
-			for(int i=-2; i<=2; i++)
+
+			for(int i=-champPerception; i<=champPerception; i++)
 			{
 				int xi = point.x+i;
 				if(xi<0 || xi>=taille) continue;
-				for(int j=-2; j<=2; j++)
+				for(int j=-champPerception; j<=champPerception; j++)
 				{
 					int yj = point.y+j;
 					if(yj<0 || yj>=taille) continue;
 					grille[xi][yj].setVisitee(true);
 				}
 			}
+					
 			
 		}
 	}
@@ -119,6 +135,21 @@ public class Intrus {
 
 	public EtatIntrus getEtat() {
 		return etat;
+	}
+	
+	public void setEtat(EtatIntrus _etat) {
+		
+		etat = _etat;
+	}
+	
+	public int getChampPerception() {
+		
+		return champPerception;
+	}
+	
+	public void setChampPerception(int _champPerception) {
+		
+		champPerception = _champPerception;
 	}
 
 }
